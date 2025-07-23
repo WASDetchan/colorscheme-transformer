@@ -2,6 +2,11 @@
 name = "colorscheme-transformer"
 version = "0.1.0"
 edition = "2024"
+license-file = "LICENSE"
+description = " A tool for manipulationg colorschemes"
+repository = "https://github.com/WASDetchan/colorscheme-transformer/"
+readme = "README.md"
+categories = ["command-line-utilities"]
 
 [dependencies]
 serde_yml = "0.0.12"
