@@ -4,6 +4,10 @@
 - Transform colorschemes to different colorsets
 
 ## How to use
+### Installation
+```console
+cargo install colorscheme-transformer
+```
 ### Format
 Colorset is YAML file in format:  
 NAME: RRGGBB  
