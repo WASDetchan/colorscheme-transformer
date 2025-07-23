@@ -38,4 +38,5 @@ example/catppuccin-frappe.yaml - catppuccin-frappe colorset
 example/catppuccin-frappe-gray.yaml - colorset based on catppuccin-frappe with gray backgrounds  
 produces  
 example/kitty-gray.conf - catppuccin-frappe colorscheme for kitty with gray backgrounds  
+Normal/Gray:  
 <img title="Result" alt="Result" src="example/result.png">
