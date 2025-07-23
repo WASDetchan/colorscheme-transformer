@@ -27,3 +27,15 @@ Substitutes {NAME}s in template to their corresponding colors from colorsets and
 coroscheme-transformer transform [colorscheme] [colorset_from] [colorset_to]
 ```
 Same as first making template with the first colorset and then filling it with the second colorset.
+### Example
+In project's root directory:
+```console
+touch example/kitty-gray.conf
+colorscheme-transformer transform example/kitty.conf example/catppuccin-frappe.yaml example/catppuccin-frappe-gray.yaml > example/kitty-gray.conf
+```
+example/kitty.conf - catppuccin-frappe colorscheme for kitty  
+example/catppuccin-frappe.yaml - catppuccin-frappe colorset  
+example/catppuccin-frappe-gray.yaml - colorset based on catppuccin-frappe with gray backgrounds  
+produces  
+example/kitty-gray.conf - catppuccin-frappe colorscheme for kitty with gray backgrounds  
+<img title="Result" alt="Result" src="example/result.png">
