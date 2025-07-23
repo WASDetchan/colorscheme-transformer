@@ -5,11 +5,11 @@
 
 ## How to use
 ### Format
-Colorset is YAML file in format
-NAME: RRGGBB
-RRGGBB case is ignored
-Colorscheme is a program-specific ready-to-use file
-Template is a colorscheme where some colors RRGGBB changed to their name {NAME} to be filled with a colorset.
+Colorset is YAML file in format:  
+NAME: RRGGBB  
+RRGGBB case is ignored.  
+Colorscheme is a program-specific ready-to-use file.  
+Template is a colorscheme where some colors RRGGBB changed to their name {NAME} to be filled with a colorset.  
 ### Make template
 ```console
 coroscheme-transformer make [colorscheme] [colorset]
