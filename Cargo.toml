@@ -1,0 +1,9 @@
+[package]
+name = "colorscheme-transformer"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde_yml = "0.0.12"
+serde = "1.0.219"
+regex = "1.11.1"
