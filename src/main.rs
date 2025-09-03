@@ -1,30 +1,10 @@
-use std::{collections::HashMap, error::Error};
+mod args;
 
+use std::{collections::HashMap, error::Error, io::{Read, Write}};
+
+use args::{Cli, Command};
+use clap::Parser;
 use regex::Regex;
-
-#[derive(Debug)]
-enum Mode {
-    Fill,
-    Make,
-    Transform,
-}
-
-impl Mode {
-    fn from_args(args: &mut impl Iterator<Item = String>) -> Result<Self, Box<dyn Error>> {
-        Ok(if let Some(mode) = args.next() {
-            match mode.as_str() {
-                "fill" => Mode::Fill,
-                "make" => Mode::Make,
-                "transform" => Mode::Transform,
-                _ => {
-                    return Err(format!("Invalid mode: {mode}. Accepted: fill, make.").into());
-                }
-            }
-        } else {
-            return Err("Mode argument not found".into());
-        })
-    }
-}
 
 #[derive(Debug)]
 struct Colorset {
@@ -32,11 +12,8 @@ struct Colorset {
 }
 
 impl Colorset {
-    fn from_args(args: &mut impl Iterator<Item = String>) -> Result<Self, Box<dyn Error>> {
-        let filename = args.next().ok_or("Colorset argument not found")?;
-        let colors_yaml = std::fs::read_to_string(filename)
-            .map_err(|e| format!("Invalid colorset file: {}", e))?;
-        let colors_strings: HashMap<String, String> = serde_yml::from_str(&colors_yaml)
+    fn from_yaml_str(colors_yaml: &str) -> Result<Self, Box<dyn Error>> {
+        let colors_strings: HashMap<String, String> = serde_yml::from_str(colors_yaml)
             .map_err(|e| format!("Invalid colorset file: {}", e))?;
         let scheme = Self {
             colors: colors_strings
@@ -90,7 +67,7 @@ fn make_template(colorscheme: &str, set: Colorset) -> String {
         let from = format!("#{}", color.to_string());
         let to = format!("#{{{name}}}");
         let regex = Regex::new(format!("(?i){}", from).as_str()).unwrap();
-        template =regex.replace_all(template.as_str(), to).into_owned();
+        template = regex.replace_all(template.as_str(), to).into_owned();
         // template = template.replace(from.as_str(), to.as_str());
     }
 
@@ -109,45 +86,41 @@ fn fill_temaplate(template: &str, scheme: Colorset) -> String {
     filled_template
 }
 
-fn template_from_args(args: &mut impl Iterator<Item = String>) -> Result<String, Box<dyn Error>> {
-    let filename = args.next().ok_or("Template argument not found")?;
-    let template = std::fs::read_to_string(filename)
-        .map_err(|e| format!("Invalid template file: {}", e))?;
-    Ok(template)
-}
-
 fn main() -> Result<(), Box<dyn Error>> {
-    let mut args = std::env::args();
-    let _ = args.next();
-    let mode = Mode::from_args(&mut args)?;
+    let cli = Cli::parse();
 
+    let mut input = String::new();
+    cli.input.open()?.read_to_string(&mut input)?;
 
-    let out = match mode {
-        Mode::Fill => {
-            let template = template_from_args(&mut args)?;
-            let scheme = Colorset::from_args(&mut args)?;
-            fill_temaplate(template.as_str(), scheme)
+    let out = match cli.command {
+        Command::Fill { to_set } => {
+            let mut colors_yaml = String::new();
+            to_set.open()?.read_to_string(&mut colors_yaml)?;
+            let set = Colorset::from_yaml_str(&colors_yaml)?;
+
+            fill_temaplate(input.as_str(), set)
         }
-        Mode::Make => {
-            let filled_template = template_from_args(&mut args)?;
-            let scheme = Colorset::from_args(&mut args)?;
-            make_template(filled_template.as_str(), scheme)
+        Command::Make { from_set } => {
+            let mut colors_yaml = String::new();
+            from_set.open()?.read_to_string(&mut colors_yaml)?;
+            let set = Colorset::from_yaml_str(&colors_yaml)?;
+
+            make_template(input.as_str(), set)
         }
-        Mode::Transform => {
-            let template_from = template_from_args(&mut args)?;
-            let scheme_from = Colorset::from_args(&mut args)?;
-            let scheme_to = Colorset::from_args(&mut args)?;
-            fill_temaplate(
-                make_template(
-                    template_from.as_str(), 
-                    scheme_from
-                ).as_str(),
-                scheme_to
-            )
+        Command::Transform { from_set, to_set } => {
+            let mut colors_yaml = String::new();
+            from_set.open()?.read_to_string(&mut colors_yaml)?;
+            let from_set = Colorset::from_yaml_str(&colors_yaml)?;
+
+            let mut colors_yaml = String::new();
+            to_set.open()?.read_to_string(&mut colors_yaml)?;
+            let to_set = Colorset::from_yaml_str(&colors_yaml)?;
+
+            fill_temaplate(make_template(input.as_str(), from_set).as_str(), to_set)
         }
     };
 
-    print!("{}", out);
+    cli.output.create()?.write(out.as_bytes())?;
 
     Ok(())
 }

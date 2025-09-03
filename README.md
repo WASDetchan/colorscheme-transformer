@@ -35,8 +35,13 @@ Same as first making template with the first colorset and then filling it with t
 In project's root directory:
 ```console
 touch example/kitty-gray.conf
-colorscheme-transformer transform example/kitty.conf example/catppuccin-frappe.yaml example/catppuccin-frappe-gray.yaml > example/kitty-gray.conf
+cat example/kitty.conf | colorscheme-transformer transform example/catppuccin-frappe.yaml example/catppuccin-frappe-gray.yaml > example/kitty-gray.conf
 ```
+Or (equivalent)
+```
+coroscheme-transformer transform example/catppuccin-frappe.yaml example/catppuccin-frappe-gray.yaml --input=example/kitty.conf -o example/kitty-gray.conf
+```
+
 example/kitty.conf - catppuccin-frappe colorscheme for kitty  
 example/catppuccin-frappe.yaml - catppuccin-frappe colorset  
 example/catppuccin-frappe-gray.yaml - colorset based on catppuccin-frappe with gray backgrounds  
