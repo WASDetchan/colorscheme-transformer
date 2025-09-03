@@ -14,21 +14,24 @@ NAME: RRGGBB
 RRGGBB case is ignored.  
 Colorscheme is a program-specific ready-to-use file.  
 Template is a colorscheme where some colors RRGGBB changed to their name {NAME} to be filled with a colorset.  
+### Args
+Input file (template or colorscheme) can be set using --input (or -i) argument, or read from stdin if not set.  
+Output file (template or colorscheme) can be set using --output (or -o) argument, or written to stdout if not set.  
 ### Make template
 ```console
-coroscheme-transformer make [colorscheme] [colorset]
+coroscheme-transformer make -i [colorscheme] -o [output] [colorset]
 ```
 Makes template from colorscheme and colorset.
 For each color RRGGBB with name NAME in colorset changes every RRGGBB occurence in colorscheme to {NAME} and prints to stdout. Ingores RRGGBB case.
 ### Fill template
 ```console
-coroscheme-transformer fill [template] [colorset]
+coroscheme-transformer fill -i [template] -o [output] [colorset]
 ```
 Substitutes {NAME}s in template to their corresponding colors from colorsets and prints to stdout. Case-sensitive, NAMEs not present in colorset are ignored.
 ### Transform colorscheme
 
 ```console
-coroscheme-transformer transform [colorscheme] [colorset_from] [colorset_to]
+coroscheme-transformer transform -i [colorscheme] -o [output] [colorset_from] [colorset_to]
 ```
 Same as first making template with the first colorset and then filling it with the second colorset.
 ### Example
@@ -38,8 +41,8 @@ touch example/kitty-gray.conf
 cat example/kitty.conf | colorscheme-transformer transform example/catppuccin-frappe.yaml example/catppuccin-frappe-gray.yaml > example/kitty-gray.conf
 ```
 Or (equivalent)
-```
-coroscheme-transformer transform example/catppuccin-frappe.yaml example/catppuccin-frappe-gray.yaml --input=example/kitty.conf -o example/kitty-gray.conf
+```console
+coloscheme-transformer transform example/catppuccin-frappe.yaml example/catppuccin-frappe-gray.yaml --input=example/kitty.conf -o example/kitty-gray.conf
 ```
 
 example/kitty.conf - catppuccin-frappe colorscheme for kitty  
