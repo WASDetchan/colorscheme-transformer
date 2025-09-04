@@ -60,6 +60,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             make_template(input.as_str(), set)
         }
         Command::Transform { from_set, to_set } => {
+            eprintln!("{}; {}", from_set, to_set);
+
             let mut colors_yaml = String::new();
             from_set.open()?.read_to_string(&mut colors_yaml)?;
             let from_set = Colorset::from_yaml_str(&colors_yaml)?;

@@ -25,8 +25,8 @@ pub enum Command {
     },
     Transform {
         #[clap(value_parser)]
-        to_set: InputPath,
-        #[clap(value_parser)]
         from_set: InputPath,
+        #[clap(value_parser)]
+        to_set: InputPath,
     },
 }
