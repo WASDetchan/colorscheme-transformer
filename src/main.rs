@@ -19,7 +19,7 @@ fn make_template(colorscheme: &str, set: Colorset) -> String {
 
     for (name, color) in set.colors.iter() {
         let from = format!("{}", to_format(color, ColorFormat::Hex));
-        let to = format!("#{{{name}}}");
+        let to = format!("{{{name}}}");
         let regex = Regex::new(format!("(?i){}", from).as_str()).unwrap();
         template = regex.replace_all(template.as_str(), to).into_owned();
     }
@@ -32,7 +32,7 @@ fn fill_temaplate(template: &str, scheme: Colorset) -> String {
 
     for (name, color) in scheme.colors.iter() {
         let from = format!("{{{name}}}");
-        let to = color.to_string();
+        let to = to_format(color, ColorFormat::Hex).to_uppercase();
         filled_template = filled_template.replace(from.as_str(), to.as_str());
     }
 
