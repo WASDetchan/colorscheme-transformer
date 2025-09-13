@@ -1,38 +1,18 @@
 mod args;
 mod color;
 
-use std::{collections::HashMap, error::Error, io::{Read, Write}};
+use std::{
+    error::Error,
+    io::{Read, Write},
+};
 
 use args::{Cli, Command};
 use clap::Parser;
-use color::{parse, to_format, ColorFormat};
-use csscolorparser::Color;
+use color::{to_format, ColorFormat};
 use regex::Regex;
 
-#[derive(Debug)]
-struct Colorset {
-    colors: HashMap<String, Color>,
-}
 
-impl Colorset {
-    fn from_yaml_str(colors_yaml: &str) -> Result<Self, Box<dyn Error>> {
-        let colors_strings: HashMap<String, String> = serde_yml::from_str(colors_yaml)
-            .map_err(|e| format!("Invalid colorset file: {}", e))?;
-        let scheme = Self {
-            colors: colors_strings
-                .into_iter()
-                .map(|(name, color_string)| {
-                    Ok::<(std::string::String, Color), Box<dyn Error>>((
-                        name,
-                        parse(color_string.as_str())?,
-                    ))
-                })
-                .collect::<Result<HashMap<_, _>, Box<dyn Error>>>()?,
-        };
-        Ok(scheme)
-    }
-}
-
+use crate::color::Colorset;
 
 fn make_template(colorscheme: &str, set: Colorset) -> String {
     let mut template = colorscheme.to_owned();
@@ -81,6 +61,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             make_template(input.as_str(), set)
         }
         Command::Transform { from_set, to_set } => {
+            eprintln!("{}; {}", from_set, to_set);
+
             let mut colors_yaml = String::new();
             from_set.open()?.read_to_string(&mut colors_yaml)?;
             let from_set = Colorset::from_yaml_str(&colors_yaml)?;
@@ -93,7 +75,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    cli.output.create()?.write(out.as_bytes())?;
+    let amount = cli.output.create()?.write(out.as_bytes())?;
+
+    eprint!("Written amount: {}", amount);
 
     Ok(())
 }
