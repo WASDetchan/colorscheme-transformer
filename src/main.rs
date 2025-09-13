@@ -1,9 +1,12 @@
 mod args;
+mod color;
 
 use std::{collections::HashMap, error::Error, io::{Read, Write}};
 
 use args::{Cli, Command};
 use clap::Parser;
+use color::{parse, to_format, ColorFormat};
+use csscolorparser::Color;
 use regex::Regex;
 
 #[derive(Debug)]
@@ -21,7 +24,7 @@ impl Colorset {
                 .map(|(name, color_string)| {
                     Ok::<(std::string::String, Color), Box<dyn Error>>((
                         name,
-                        Color::from_str(color_string.as_str())?,
+                        parse(color_string.as_str())?,
                     ))
                 })
                 .collect::<Result<HashMap<_, _>, Box<dyn Error>>>()?,
@@ -30,45 +33,15 @@ impl Colorset {
     }
 }
 
-#[derive(Debug)]
-struct Color {
-    red: u32,
-    green: u32,
-    blue: u32,
-}
-
-impl Color {
-    fn from_str(s: &str) -> Result<Self, Box<dyn Error>> {
-        if s.len() != 6 {
-            return Err(format!("Invalid color: {}", s).into());
-        }
-        let chars = s.chars();
-
-        let symbols_int: Vec<u32> = chars
-            .map(|c| c.to_digit(16).ok_or(format!("Invalid color: {}", s)))
-            .collect::<Result<_, _>>()?;
-
-        Ok(Color {
-            red: symbols_int[0] * 16 + symbols_int[1],
-            green: symbols_int[2] * 16 + symbols_int[3],
-            blue: symbols_int[4] * 16 + symbols_int[5],
-        })
-    }
-
-    fn to_string(&self) -> String {
-        format!("{:02X}{:02X}{:02X}", self.red, self.green, self.blue)
-    }
-}
 
 fn make_template(colorscheme: &str, set: Colorset) -> String {
     let mut template = colorscheme.to_owned();
 
     for (name, color) in set.colors.iter() {
-        let from = format!("#{}", color.to_string());
+        let from = format!("{}", to_format(color, ColorFormat::Hex));
         let to = format!("#{{{name}}}");
         let regex = Regex::new(format!("(?i){}", from).as_str()).unwrap();
         template = regex.replace_all(template.as_str(), to).into_owned();
-        // template = template.replace(from.as_str(), to.as_str());
     }
 
     template
